@@ -53,7 +53,7 @@ module.exports = {
             loader: "css-loader",
             options: {
               importLoaders: 2, // 配置「css-loader 作用于 @import 的资源之前」有多少个 loader。
-              modules: true, // 启用 CSS 模块化规范
+              // modules: true, // 启用 CSS 模块化规范
             },
           },
           "postcss-loader",

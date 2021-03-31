@@ -1,12 +1,17 @@
+/*
+ * @Author: xulei
+ * @Date: 2021-03-31 22:53:20
+ * @Last Modified by: xulei
+ * @Last Modified time: 2021-03-31 23:23:01
+ */
 import React from "react";
-// import { HashRouter as Router, Route, Link } from "react-router-dom";
-// import { Layout } from "antd";
-// import routes from "./route";
+import { HashRouter as Router, Route, Link } from "react-router-dom";
+import { Layout } from "antd";
+import routes from "@/route";
 import waterbyside from "@/assets/images/waterbyside.jpg";
-import styles from "@/css/index.scss";
-import "./app.scss";
+import "@/app.scss";
 
-// const { Header, Content } = Layout;
+const { Header, Content } = Layout;
 
 class App extends React.Component {
   componentDidMount() {
@@ -20,36 +25,37 @@ class App extends React.Component {
   render() {
     return (
       <>
-        {/* <Router>
-          <Layout>
-            <Header className="header">
-              {routes.map((v) => (
-                <Link to={v.path} key={v.title} className="link">
-                  {v.title}
-                </Link>
-              ))}
-            </Header>
-            <Content>
-              {routes.map((v) => {
-                if (v.exact) {
+        {
+          <Router>
+            <Layout>
+              <Header className="header">
+                {routes.map((v) => (
+                  <Link to={v.path} key={v.title} className="link">
+                    {v.title}
+                  </Link>
+                ))}
+                <img src={waterbyside} className="waterbyside" />
+              </Header>
+              <Content>
+                {routes.map((v) => {
+                  if (v.exact) {
+                    return (
+                      <Route
+                        exact
+                        key={v.path}
+                        path={v.path}
+                        component={v.component}
+                      />
+                    );
+                  }
                   return (
-                    <Route
-                      exact
-                      key={v.path}
-                      path={v.path}
-                      component={v.component}
-                    />
+                    <Route key={v.path} path={v.path} component={v.component} />
                   );
-                }
-                return (
-                  <Route key={v.path} path={v.path} component={v.component} />
-                );
-              })}
-            </Content>
-          </Layout>
-        </Router> */}
-        <div>hello react</div>
-        <img src={waterbyside} className={styles.waterbyside} />
+                })}
+              </Content>
+            </Layout>
+          </Router>
+        }
       </>
     );
   }
