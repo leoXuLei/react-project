@@ -19,6 +19,7 @@ module.exports = {
   },
   entry: {
     main: "./src/index.js", // 入口文件
+    // xlsxfullmin: "./src/assets/xlsx.full.min.js", // xlsx文件
   },
   output: {
     filename: "[name].js", // 打包出来的文件名

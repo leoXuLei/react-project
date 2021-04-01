@@ -60,8 +60,17 @@ a {
   float: right;
 }
 
+#root {
+  height: 100%;
+}
+
+.layout {
+  height: 100%;
+}
+
 /* header */
 .header {
+  // position: fixed;
   background: #1890ff;
   display: flex;
   align-items: center;
@@ -77,6 +86,13 @@ a {
       transition: all 0.1s ease-in;
     }
   }
+}
+
+/* content */
+.content {
+  min-height: calc(100% - 64px - 100px);
+  margin: 50px;
+  background-color: #fff;
 }
 
 .waterbyside {

@@ -27,7 +27,7 @@ class App extends React.Component {
       <>
         {
           <Router>
-            <Layout>
+            <Layout className="layout">
               <Header className="header">
                 {routes.map((v) => (
                   <Link to={v.path} key={v.title} className="link">
@@ -36,7 +36,7 @@ class App extends React.Component {
                 ))}
                 <img src={waterbyside} className="waterbyside" />
               </Header>
-              <Content>
+              <Content className="content">
                 {routes.map((v) => {
                   if (v.exact) {
                     return (

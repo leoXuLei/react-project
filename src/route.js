@@ -7,6 +7,7 @@
 import Resume from "@/pages/resume";
 import Project from "@/pages/project";
 import TableAndCharts from "@/pages/tableAndCharts";
+import TestExcelExport from "@/pages/testExcelExport";
 
 const routes = [
   {
@@ -19,11 +20,16 @@ const routes = [
     path: "/project",
     title: "project",
     component: Project,
-  },
+  } /* 
   {
     path: "/tableAndCharts",
     title: "tableAndCharts",
     component: TableAndCharts,
+  }, */,
+  {
+    path: "/testExcelExport",
+    title: "testExcelExport",
+    component: TestExcelExport,
   },
 ];
 
