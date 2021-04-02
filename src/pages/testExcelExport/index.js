@@ -1,163 +1,176 @@
 import React, { Fragment } from "react";
 import { Button } from "antd";
-import { DATA, MERGES_LIST } from "./contants";
-import XLSX from "xlsx";
-import XLSXStyle from "xlsx-style";
+import { DATA_LIST, MERGES_LIST } from "./contants";
+// import XLSX from "xlsx";
+// import XLSXStyle from "xlsx-style";
+import BigNumber from "bignumber.js";
 
 const TestExcelExport = () => {
-  const exportFile = async () => {
-    var filename = "testExportFile.xlsx"; //文件名称//数据，一定注意需要时二维数组
-    var ws_name = "Sheet1"; //Excel第一个sheet的名称
-    var wb = XLSX.utils.book_new();
-    var ws = XLSX.utils.aoa_to_sheet(DATA);
-    console.log(`ws`, ws);
-    // 目前设置样式无效
-    ws["H1"].s = {
-      alignment: { vertical: "center" },
-      font: { sz: 14, bold: true, color: { rgb: "FFFFAA00" } },
-      fill: { bgColor: { indexed: 64 }, fgColor: { rgb: "FFFF00" } },
-    }; //<====设置xlsx单元格样式
-    ws["!merges"] = MERGES_LIST;
-    XLSX.utils.book_append_sheet(wb, ws, ws_name); //将数据添加到工作薄
-    XLSX.writeFile(wb, filename); //导出Excel
-  };
-  //   !!!!!!!!!!!!!!!!!!!
+  //   const exportFile = async () => {
+  //     var filename = "testExportFile.xlsx"; //文件名称//数据，一定注意需要时二维数组
+  //     var ws_name = "Sheet1"; //Excel第一个sheet的名称
+  //     var wb = XLSX.utils.book_new();
+  //     var ws = XLSX.utils.aoa_to_sheet(DATA);
+  //     console.log(`ws`, ws);
+  //     // 目前设置样式无效
+  //     ws["H1"].s = {
+  //       alignment: { vertical: "center" },
+  //       font: { sz: 14, bold: true, color: { rgb: "FFFFAA00" } },
+  //       fill: { bgColor: { indexed: 64 }, fgColor: { rgb: "FFFF00" } },
+  //     }; //<====设置xlsx单元格样式
+  //     ws["!merges"] = MERGES_LIST;
+  //     XLSX.utils.book_append_sheet(wb, ws, ws_name); //将数据添加到工作薄
+  //     XLSX.writeFile(wb, filename); //导出Excel
+  //   };
 
-  function saveAs(obj, fileName) {
-    var tmpa = document.createElement("a");
-    tmpa.download = fileName || "下载";
-    tmpa.href = URL.createObjectURL(obj);
-    tmpa.click();
-    setTimeout(function () {
-      URL.revokeObjectURL(obj);
-    }, 100);
-  }
-  var jsono = [
-    {
-      id: 1,
-      合并的列头1: "数据11",
-      合并的列头2: "数据12",
-      合并的列头3: "数据13",
-      合并的列头4: "数据14",
-    },
-    {
-      id: 2,
-      合并的列头1: "数据21",
-      合并的列头2: "数据22",
-      合并的列头3: "数据23",
-      合并的列头4: "数据24",
-    },
-  ];
-  const wopts = {
-    bookType: "xlsx",
-    bookSST: true,
-    type: "binary",
-    cellStyles: true,
-  };
-  function downloadExl(json, type) {
-    var tmpdata = json[0];
-    json.unshift({});
-    var keyMap = []; //获取keys
-    for (var k in tmpdata) {
-      keyMap.push(k);
-      json[0][k] = k;
-    }
-    var tmpdata = []; //用来保存转换好的json
-    json
-      .map((v, i) =>
-        keyMap.map((k, j) =>
-          Object.assign(
-            {},
-            {
-              v: v[k],
-              position:
-                (j > 25 ? getCharCol(j) : String.fromCharCode(65 + j)) +
-                (i + 1),
-            }
-          )
-        )
-      )
-      .reduce((prev, next) => prev.concat(next))
-      .forEach(
-        (v, i) =>
-          (tmpdata[v.position] = {
-            v: v.v,
-          })
-      );
-    var outputPos = Object.keys(tmpdata); //设置区域,比如表格从A1到D10
-    tmpdata["B1"].s = {
-      font: { sz: 14, bold: true, color: { rgb: "FFFFAA00" } },
-      fill: { bgColor: { indexed: 64 }, fgColor: { rgb: "FFFF00" } },
-    }; //<====设置xlsx单元格样式
-    tmpdata["!merges"] = [
-      {
-        s: { c: 1, r: 0 },
-        e: { c: 4, r: 0 },
+  // 如果发请求获取数据，需要把请求到的数据转成和 value_list 一样的数据格式，在作为参数，传入 downloadExl 方法中
+  // value_list 中一个数组表示excel中一行数据
+  const downloadExl = (value_list, filename, type) => {
+    //编码单元格
+
+    var tmp_data = {};
+    value_list.forEach(function (value, r) {
+      value.forEach(function (v, c) {
+        var cell_obj = { c: c, r: r };
+        var cell_text = XLSX.utils.encode_cell(cell_obj);
+        tmp_data[cell_text] = {
+          v: v,
+        };
+      });
+    });
+
+    console.log("tmp_data", tmp_data);
+    var white_border = {
+      style: "medium",
+      color: {
+        rgb: "FFFFFFFF",
       },
-    ]; //<====合并单元格
-    var tmpWB = {
-      SheetNames: ["mySheet"], //保存的表标题
+    };
+    // 第一行样式
+    var first_line_style = {
+      font: {
+        sz: 24,
+      },
+      alignment: {
+        horizontal: "center",
+      },
+    };
+    //第三行样式（表头）
+    var third_line_style = {
+      fill: {
+        fgColor: {
+          rgb: "ff0188FB",
+        },
+      },
+      font: {
+        sz: 14,
+        color: {
+          rgb: "ffffffff",
+        },
+      },
+      border: {
+        right: white_border,
+      },
+    };
+
+    const hvCenterStyle = {
+      alignment: {
+        horizontal: "center",
+        vertical: "center",
+      },
+    };
+    //设置H1单元格样式
+    tmp_data["H1"].s = {
+      ...hvCenterStyle,
+    };
+
+    //设置【1-8】行【A-G】列的样式
+    var col_list = [];
+    // var length = value_list[0].length;
+    for (var i = 0; i < 7; i++) {
+      var col_text = XLSX.utils.encode_col(i);
+      col_list.push(col_text);
+    }
+    console.log(`设置第三行的样式`, col_list);
+    col_list.forEach(function (value, index) {
+      var attr3 = value + "2";
+      tmp_data[attr3].s = {
+        ...hvCenterStyle,
+      };
+    });
+    tmp_data["H2"].s = {
+      ...hvCenterStyle,
+    };
+    tmp_data["H4"].s = {
+      ...hvCenterStyle,
+    };
+
+    //获取所有单元格编码,比如["A1", "B1", "C1", "D1", "E1", "F1"]
+    var output_pos = Object.keys(tmp_data);
+    var workbook = {
+      SheetNames: ["sheet1"], //保存工作表的名称
       Sheets: {
-        mySheet: Object.assign(
+        sheet1: Object.assign(
           {},
-          tmpdata, //内容
+          tmp_data, //单元格内容
           {
-            "!ref": outputPos[0] + ":" + outputPos[outputPos.length - 1], //设置填充区域
+            "!ref": output_pos[0] + ":" + output_pos[output_pos.length - 1], //工作表范围
           }
         ),
       },
     };
-    var tmpDown = new Blob(
-      [
-        s2ab(
-          XLSXStyle.write(
-            tmpWB,
-            {
-              bookType: type == undefined ? "xlsx" : type,
-              bookSST: false,
-              type: "binary",
-            } //这里的数据是用来定义导出的格式类型
-          )
-        ),
-      ],
-      {
-        type: "",
-      }
-    );
-    saveAs(
-      tmpDown,
-      "这里是下载的文件名" +
-        "." +
-        (wopts.bookType == "biff2" ? "xls" : wopts.bookType)
-    );
-  }
-  function getCharCol(n) {
-    let temCol = "",
-      s = "",
-      m = 0;
-    while (n > 0) {
-      m = (n % 26) + 1;
-      s = String.fromCharCode(m + 64) + s;
-      n = (n - m) / 26;
-    }
-    return s;
-  }
-  function s2ab(s) {
-    if (typeof ArrayBuffer !== "undefined") {
+    //合并单元格
+    workbook.Sheets["sheet1"]["!merges"] = MERGES_LIST;
+
+    //设置列宽
+    workbook.Sheets["sheet1"]["!cols"] = [
+      { wch: 8 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+    ];
+
+    //导出文件
+    var type = type || "xlsx";
+    var filename = filename || "文件名";
+    filename += "." + type;
+    var wopts = {
+      bookType: type,
+      type: "binary",
+    };
+    var wbout = XLSX.write(workbook, wopts);
+    function s2ab(s) {
       var buf = new ArrayBuffer(s.length);
       var view = new Uint8Array(buf);
       for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xff;
       return buf;
-    } else {
-      var buf = new Array(s.length);
-      for (var i = 0; i != s.length; ++i) buf[i] = s.charCodeAt(i) & 0xff;
-      return buf;
     }
-  }
+    var blob = new Blob([s2ab(wbout)], {
+      type: "application/octet-stream",
+    });
+    function saveAs(obj, filename) {
+      var link = document.createElement("a");
+      link.download = filename;
+      link.href = URL.createObjectURL(obj);
+      link.click();
+      URL.revokeObjectURL(obj);
+    }
+    saveAs(blob, filename);
+  };
+
   return (
     <Fragment>
       {/* <Button type="primary" onClick={exportFile}> */}
-      <Button type="primary" onClick={() => downloadExl(jsono)}>
+      <Button type="primary" onClick={() => downloadExl(DATA_LIST)}>
         导出Excel
       </Button>
     </Fragment>
