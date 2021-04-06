@@ -3,6 +3,7 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin"); // 只作用于�
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin"); // 将 css 单独打包成文件通过link方式引入
 const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin"); // 压缩 css
+const CopyWebpackPlugin = require("copy-webpack-plugin"); // 静态资源拷贝：将单个文件或整个目录复制到构建目录
 // webpack-bundle-analyzer：只作用于生产环境，用来分析打包文件
 const devMode = process.env.NODE_ENV !== "production";
 
@@ -86,6 +87,15 @@ module.exports = {
     //   cssProcessorOptions: { safe: true, discardComments: { removeAll: true } }, //传递给 cssProcessor 的选项，默认为{}
     //   canPrint: true, //布尔值，指示插件是否可以将消息打印到控制台，默认为 true
     // }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: "src/static/*.js",
+          to: `${path.resolve(__dirname, "dist", "js")}/[name][ext]`,  // 输出到 dist/js/[name][ext]
+        },
+        // 还可以继续配置其它要拷贝的文件
+      ],
+    }),
   ],
   resolve: {
     extensions: [".tsx", ".ts", ".js", ".jsx", ".mdx"],
