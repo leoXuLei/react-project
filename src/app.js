@@ -2,7 +2,7 @@
  * @Author: xulei
  * @Date: 2021-03-31 22:53:20
  * @Last Modified by: xulei
- * @Last Modified time: 2021-03-31 23:23:01
+ * @Last Modified time: 2021-07-27 13:30:23
  */
 import React from "react";
 import { HashRouter as Router, Route, Link } from "react-router-dom";
@@ -17,11 +17,18 @@ class App extends React.Component {
   componentDidMount() {
     const arr = [new Promise(() => {}), new Promise(() => {})];
     arr.forEach((v) => console.log(v));
-    let a = () => {
+    const a = () => {
       return "测试箭头函数";
     };
+    switch (a) {
+      case "a":
+        break;
+      case "b":
+        break;
+    }
     console.log(a());
   }
+
   render() {
     return (
       <>
