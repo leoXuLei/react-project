@@ -2,10 +2,10 @@ const path = require("path"); // 一个 Node.js 核心模块，用于操作文�
 const { CleanWebpackPlugin } = require("clean-webpack-plugin"); // 只作用于生产环境，开始打包前自动清空dist文件夹
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin"); // 将 css 单独打包成文件通过link方式引入
-const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin"); // 压缩 css
+// const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin"); // 压缩 css
 const CopyWebpackPlugin = require("copy-webpack-plugin"); // 静态资源拷贝：将单个文件或整个目录复制到构建目录
 // webpack-bundle-analyzer：只作用于生产环境，用来分析打包文件
-const devMode = process.env.NODE_ENV !== "production";
+// const devMode = process.env.NODE_ENV !== "production";
 
 module.exports = {
   mode: "development", // 开发环境
@@ -91,7 +91,7 @@ module.exports = {
       patterns: [
         {
           from: "src/static/*.js",
-          to: `${path.resolve(__dirname, "dist", "js")}/[name][ext]`,  // 输出到 dist/js/[name][ext]
+          to: `${path.resolve(__dirname, "dist", "js")}/[name][ext]`, // 输出到 dist/js/[name][ext]
         },
         // 还可以继续配置其它要拷贝的文件
       ],
