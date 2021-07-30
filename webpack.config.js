@@ -1,4 +1,6 @@
 const path = require("path"); // 一个 Node.js 核心模块，用于操作文件路径。
+const webpack = require("webpack");
+
 const { CleanWebpackPlugin } = require("clean-webpack-plugin"); // 只作用于生产环境，开始打包前自动清空dist文件夹
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin"); // 将 css 单独打包成文件通过link方式引入
@@ -10,13 +12,17 @@ const CopyWebpackPlugin = require("copy-webpack-plugin"); // 静态资源拷贝�
 module.exports = {
   mode: "development", // 开发环境
   devtool: "cheap-module-source-map",
+  target: "web",
   devServer: {
     contentBase: path.join(__dirname, "./dist"), // 告诉服务器在哪里查找文件
-    port: 8080, // 端口号
+    // historyApiFallback: true,
+    port: 8090, // 端口号
     open: "chrome", // 自动启服务器
-    // hot: true, // 启用 webpack 的模块热替换特性
-    // hotOnly: true  注释之后 报错代码后页面自动刷新
-    // overlay: true, // 代码出错弹出浮动层
+    hot: false, // 启用 webpack 的模块热替换特性
+    // hotOnly: true, // 注释之后 报错代码后页面自动刷新
+    // liveReload: true,
+    // overlay: false, // 代码出错弹出浮动层
+    // inline: true,
   },
   entry: {
     main: "./src/index.js", // 入口文件
@@ -77,6 +83,7 @@ module.exports = {
       // filename: 'index.html', // 生成后的文件名
       template: "src/index.html", // 根据此模版生成 HTML 文件
     }),
+    // new webpack.HotModuleReplacementPlugin(),
     new MiniCssExtractPlugin({
       filename: "./css/[name].css", // 前面加上目录
       chunkFilename: "[id].css",

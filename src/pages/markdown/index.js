@@ -6,6 +6,7 @@
  * @FilePath: \resumetwo\src\pages\resume\index.js
  */
 import React, { PureComponent, memo } from "react";
+import TestClassComParentSon from "./TestClassComParentSon";
 import "./index.scss";
 
 class Markdown extends PureComponent {
@@ -16,9 +17,13 @@ class Markdown extends PureComponent {
   componentDidMount() {}
 
   render() {
-    const temp = 4;
-    // temp = 3;
-    return <p>Markdown {temp}</p>;
+    console.log('冲冲冲2')
+    return (
+      <div>
+        Markdown 页面 2345
+        <TestClassComParentSon />
+      </div>
+    );
   }
 }
 
