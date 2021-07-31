@@ -17,10 +17,8 @@ class Markdown extends PureComponent {
   componentDidMount() {}
 
   render() {
-    console.log('冲冲冲2')
     return (
-      <div>
-        Markdown 页面 2345
+      <div className="markDown">
         <TestClassComParentSon />
       </div>
     );
