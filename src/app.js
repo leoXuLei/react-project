@@ -15,18 +15,12 @@ const { Header, Content } = Layout;
 
 class App extends React.Component {
   componentDidMount() {
-    const arr = [new Promise(() => {}), new Promise(() => {})];
-    arr.forEach((v) => console.log(v));
-    const a = () => {
-      return "测试箭头函数";
-    };
-    switch (a) {
-      case "a":
-        break;
-      case "b":
-        break;
-    }
-    console.log(a());
+    // const arr = [new Promise(() => {}), new Promise(() => {})];
+    // arr.forEach((v) => console.log(v));
+    // const a = () => {
+    //   return "测试箭头函数";
+    // };
+    // console.log(a());
   }
 
   render() {

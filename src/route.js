@@ -6,9 +6,10 @@
  */
 import Resume from "@/pages/resume";
 import Project from "@/pages/project";
-import TableAndCharts from "@/pages/tableAndCharts";
-import TestExcelExport from "@/pages/testExcelExport";
+// import TableAndCharts from "@/pages/tableAndCharts";
 import Markdown from "@/pages/markdown";
+// import Test from '@/pages/test/treeData'
+import Test from "@/pages/test/index";
 
 const routes = [
   {
@@ -27,16 +28,17 @@ const routes = [
     title: "project",
     component: Project,
   },
-  /* 
+  {
+    path: "/test",
+    title: "test",
+    component: Test,
+  },
+  /*
   {
     path: "/tableAndCharts",
     title: "tableAndCharts",
     component: TableAndCharts,
-  }, */ {
-    path: "/testExcelExport",
-    title: "testExcelExport",
-    component: TestExcelExport,
-  },
+  }, */
 ];
 
 export default routes;
