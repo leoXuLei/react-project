@@ -3,7 +3,6 @@ import { Button } from "antd";
 import { DATA_LIST, MERGES_LIST } from "./contants";
 // import XLSX from "xlsx";
 // import XLSXStyle from "xlsx-style";
-import "./index.scss";
 
 const TestExcelExport = () => {
   // 如果发请求获取数据，需要把请求到的数据转成和 dataList 一样的数据格式，在作为参数，传入 downloadExl 方法中
