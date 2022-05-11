@@ -14,7 +14,9 @@ module.exports = {
   devtool: "cheap-module-source-map",
   target: "web",
   devServer: {
-    contentBase: path.join(__dirname, "./dist"), // 告诉服务器在哪里查找文件
+    static: {
+      directory: path.join(__dirname, "./dist"), // 告诉服务器在哪里查找文件
+    },
     // historyApiFallback: true,
     port: 8090, // 端口号
     open: "chrome", // 自动启服务器
@@ -83,7 +85,7 @@ module.exports = {
       // filename: 'index.html', // 生成后的文件名
       template: "src/index.html", // 根据此模版生成 HTML 文件
     }),
-    // new webpack.HotModuleReplacementPlugin(),
+    // new webpack.HotModuleReplacementPlugin(), // 设置target: "web"也实现了热模块更新
     new MiniCssExtractPlugin({
       filename: "./css/[name].css", // 前面加上目录
       chunkFilename: "[id].css",
