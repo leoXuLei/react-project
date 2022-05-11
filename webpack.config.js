@@ -55,7 +55,7 @@ module.exports = {
             loader: "css-loader",
             options: {
               importLoaders: 2, // 配置「css-loader 作用于 @import 的资源之前」有多少个 loader。
-              // modules: true, // 启用 CSS 模块化规范
+              modules: true, // 启用 CSS 模块化规范
             },
           },
           "postcss-loader",
@@ -91,7 +91,7 @@ module.exports = {
       patterns: [
         {
           from: "src/static/*.js",
-          to: `${path.resolve(__dirname, "dist", "js")}/[name][ext]`,  // 输出到 dist/js/[name][ext]
+          to: `${path.resolve(__dirname, "dist", "js")}/[name][ext]`, // 输出到 dist/js/[name][ext]
         },
         // 还可以继续配置其它要拷贝的文件
       ],

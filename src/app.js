@@ -2,14 +2,14 @@
  * @Author: xulei
  * @Date: 2021-03-31 22:53:20
  * @Last Modified by: xulei
- * @Last Modified time: 2021-07-27 13:30:23
+ * @Last Modified time: 2022-05-11 11:52:15
  */
 import React from "react";
 import { HashRouter as Router, Route, Link } from "react-router-dom";
 import { Layout } from "antd";
 import routes from "@/route";
 import waterbyside from "@/assets/images/waterbyside.jpg";
-import "@/app.scss";
+import styles from "@/app.scss";
 
 const { Header, Content } = Layout;
 
@@ -34,16 +34,16 @@ class App extends React.Component {
       <>
         {
           <Router>
-            <Layout className="layout">
-              <Header className="header">
+            <Layout className={styles.Layout}>
+              <Header className={styles.header}>
                 {routes.map((v) => (
-                  <Link to={v.path} key={v.title} className="link">
+                  <Link to={v.path} key={v.title} className={styles.link}>
                     {v.title}
                   </Link>
                 ))}
-                <img src={waterbyside} className="waterbyside" />
+                <img src={waterbyside} className={styles.waterbyside} />
               </Header>
-              <Content className="content">
+              <Content className={styles.content}>
                 {routes.map((v) => {
                   if (v.exact) {
                     return (

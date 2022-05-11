@@ -1,9 +1,9 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState, useMemo } from "react";
 import { Button } from "antd";
 import { DATA_LIST, MERGES_LIST } from "./contants";
 // import XLSX from "xlsx";
 // import XLSXStyle from "xlsx-style";
-import BigNumber from "bignumber.js";
+import "./index.scss";
 
 const TestExcelExport = () => {
   // 如果发请求获取数据，需要把请求到的数据转成和 dataList 一样的数据格式，在作为参数，传入 downloadExl 方法中
@@ -151,12 +151,135 @@ const TestExcelExport = () => {
     saveAs(blob, filename);
   };
 
+  const allUserList = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+  const [groupList, setGroupList] = useState([
+    { key: "1", title: "一组", userList: [1, 2, 3] },
+    { key: "2", title: "二组", userList: [3, 4, 5] },
+    { key: "3", title: "三组", userList: [3, 4, 6] },
+  ]);
+  const [activeGroupKey, setActiveGroupKey] = useState(); // 当前选中的组的key
+
+  // 删除当前activeGroup组内成员列表中某个成员
+  const onClickDeleteUser = (item) => {
+    setGroupList((prev) =>
+      prev?.map((v) => {
+        if (v?.key === activeGroupKey) {
+          return {
+            ...v,
+            userList: v?.userList?.filter((v) => v !== item),
+          };
+        }
+        return v;
+      })
+    );
+  };
+
+  // 从员工列表添加人员到当前activeGroup的成员列表中(比较特殊)
+  const onClickAddUser = (item) => {
+    setGroupList((prev) =>
+      prev?.map((v) => {
+        if (v?.key === activeGroupKey) {
+          return {
+            ...v,
+            userList: [...(v?.userList || []), item],
+          };
+        }
+        return v;
+      })
+    );
+  };
+
+  // 翻转当前activeGroup的组名
+  const onReverseGroupName = () => {
+    setGroupList((prev) =>
+      prev?.map((v) => {
+        if (v?.key === activeGroupKey) {
+          return {
+            ...v,
+            title: v?.title?.split("")?.reverse?.()?.join(""),
+          };
+        }
+        return v;
+      })
+    );
+  };
+
+  // 员工列表中可以添加到当前activeGroup组内成员列表中的员工
+
+  const activeGroup = useMemo(
+    () => groupList?.find((v) => v?.key === activeGroupKey),
+    [groupList, activeGroupKey]
+  );
+
+  const addUserList = useMemo(
+    () =>
+      allUserList.filter((v) =>
+        activeGroup?.userList ? !activeGroup?.userList?.includes?.(v) : true
+      ),
+    [activeGroup]
+  );
+
+  console.log("groupList", JSON.parse(JSON.stringify(groupList)));
+
   return (
     <Fragment>
       {/* <Button type="primary" onClick={exportFile}> */}
-      <Button type="primary" onClick={() => downloadExl(DATA_LIST)}>
+      {/* <Button type="primary" onClick={() => downloadExl(DATA_LIST)}>
         导出Excel
-      </Button>
+      </Button> */}
+      <div className="wrapper">
+        <div className="group-list-container">
+          <div className="title">组列表</div>
+          <div className="list">
+            {groupList?.map((v) => (
+              <div
+                key={v.title}
+                className={`list-item ${
+                  activeGroupKey === v?.key ? "active" : ""
+                }`}
+                onClick={() => setActiveGroupKey(v?.key)}
+              >
+                {v.title}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="group-item-container">
+          <div className="title">当前选中组详情</div>
+          <div className="reverse-group-name" onClick={onReverseGroupName}>
+            翻转组名
+          </div>
+          <div>组成员</div>
+          <div className="list">
+            {activeGroup?.userList?.map((v) => (
+              <div className="list-item" key={v}>
+                <div className="text-content">{v}</div>
+                <div className="btn" onClick={() => onClickDeleteUser(v)}>
+                  移除
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="staff-container">
+          <div className="title">成员列表</div>
+          <div className="list">
+            {addUserList?.map((v) => (
+              <div className="list-item" key={v}>
+                <div className="text-content">{v}</div>
+                {activeGroup && (
+                  <div className="btn" onClick={() => onClickAddUser(v)}>
+                    添加到小组
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </Fragment>
   );
 };
