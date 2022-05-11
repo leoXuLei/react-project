@@ -18,7 +18,7 @@ module.exports = {
     // historyApiFallback: true,
     port: 8090, // 端口号
     open: "chrome", // 自动启服务器
-    hot: false, // 启用 webpack 的模块热替换特性
+    // hot: true, // 启用 webpack 的模块热替换特性
     // hotOnly: true, // 注释之后 报错代码后页面自动刷新
     // liveReload: true,
     // overlay: false, // 代码出错弹出浮动层
@@ -36,7 +36,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/, // 匹配.js结尾的文件
+        test: /(\.js)|(\.jsx)$/, // 匹配.js|x结尾的文件
         exclude: /node_modules/, // 排除依赖包文件夹
         loader: "babel-loader", // 使用babel-loader，配置在.babelrc
       },

@@ -27,6 +27,7 @@ textarea {
 }
 body {
   font-size: 16px;
+  background-color: #f0f0f0;
 }
 ul,
 ol,
@@ -90,10 +91,10 @@ a {
 
 /* content */
 .content {
-  min-height: calc(100% - 64px - 100px);
-  margin: 50px;
-  // background-color: #fff;
-  background-color: #ccc;
+  min-height: calc(100vh - 64px - 60px);
+  margin: 30px;
+  padding: 20px;
+  background-color: #fff;
 }
 
 .waterbyside {

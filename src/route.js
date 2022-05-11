@@ -2,14 +2,12 @@
  * @Author: xulei
  * @Date: 2021-03-31 22:53:12
  * @Last Modified by: xulei
- * @Last Modified time: 2021-07-18 12:50:10
+ * @Last Modified time: 2022-05-11 18:04:50
  */
 import Resume from "@/pages/resume";
 import Project from "@/pages/project";
 // import TableAndCharts from "@/pages/tableAndCharts";
 import Markdown from "@/pages/markdown";
-// import Test from '@/pages/test/treeData'
-import Test from "@/pages/test/index";
 
 const routes = [
   {
@@ -27,11 +25,6 @@ const routes = [
     path: "/project",
     title: "project",
     component: Project,
-  },
-  {
-    path: "/test",
-    title: "test",
-    component: Test,
   },
   /*
   {
