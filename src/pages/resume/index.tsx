@@ -13,11 +13,11 @@ import "./index.scss";
 
 const Resume = () => {
   const [num, setNum] = useState(0);
-  const [obj, setObj] = useState();
+  const [obj, setObj] = useState<any>();
 
   return (
     <>
-      <div>测试文本</div>
+      <div>测试文本运行情况2312</div>
       <Son num={num} />
       <button onClick={() => setNum((prev) => prev + 1)}>
         修改父组件的基本类型状态

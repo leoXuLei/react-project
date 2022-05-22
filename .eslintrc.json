@@ -8,10 +8,12 @@
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
-    "eslint-config-standard"
+    "eslint-config-standard",
+    "plugin:@typescript-eslint/recommended"
+    // "plugin:@typescript-eslint/eslint-recommended"
   ],
-  // 解析器类型：espima(默认), babel-eslint, @typescript-eslint/parse
-  "parser": "babel-eslint",
+  // 解析器类型：espima(默认), babel-eslint, @typescript-eslint/parser
+  "parser": "@typescript-eslint/parser",
   // 解析器配置参数
   "parserOptions": {
     // es 版本号，默认为 5，也可以使用年份，比如 2015 (同 6)
@@ -22,11 +24,12 @@
     "ecmaFeatures": {
       "globalReturn": true, // 允许在全局作用域下使用 return 语句
       "impliedStrict": true, // 启用全局 strict mode
-      "jsx": false // 启用 JSX
+      "jsx": true // 启用 JSX
     }
   },
-  // "plugins": ["react", "@typescript-eslint"],
-  "plugins": ["react"],
+  // "plugins": ["react", "@typescript-eslint/eslint-plugin"],
+  // "plugins": ["react", "react-hooks", "typescript", "@typescript-eslint"],
+  "plugins": ["react", "@typescript-eslint"],
   "globals": {
     // 声明 jQuery 对象为全局变量
     "$": false // true表示该变量为 writeable，而 false 表示 readonly
@@ -70,7 +73,7 @@
     "no-this-before-super": 0, //在调用super()之前不能使用this或super
     "no-undef": 2, //不能有未定义的变量
     "no-unreachable": 1, //不能有无法执行的代码
-    "no-use-before-define": 2, //未定义前不能使用
+    "no-use-before-define": 0, // 未定义前不能使用
     "prefer-arrow-callback": 0, //比较喜欢箭头回调
     "quotes": [0, "single"], //单引号
     "react/display-name": 0, //防止在React组件定义中丢失displayName
@@ -106,7 +109,10 @@
     "react/no-deprecated": 1, //不使用弃用的方法
     "react/jsx-equals-spacing": 2, //在JSX属性中强制或禁止等号周围的空格
     "semi": 0, //不强制使用分号
-    "space-before-function-paren": 0 // 方法名和括号之间需要有一个空格
+    "space-before-function-paren": 0, // 方法名和括号之间需要有一个空格
+    "@typescript-eslint/no-var-requires": 0,
+    "@typescript-eslint/no-use-before-define": ["error"],
+    "@typescript-eslint/explicit-module-boundary-types": 0
   },
   "settings": {
     "import/ignore": ["node_modules", "build/*"]

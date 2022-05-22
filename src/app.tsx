@@ -2,14 +2,16 @@
  * @Author: xulei
  * @Date: 2021-03-31 22:53:20
  * @Last Modified by: xulei
- * @Last Modified time: 2022-05-11 18:01:24
+ * @Last Modified time: 2022-05-22 10:37:41
  */
 import React from "react";
 import { HashRouter as Router, Route, Link } from "react-router-dom";
 import { Layout } from "antd";
-import routes from "@/route";
-import waterbyside from "@/assets/images/waterbyside.jpg";
-import styles from "@/app.scss";
+import routes from "../src/route";
+// import routes from "@/route";
+
+import waterbyside from "../src/assets/images/waterbyside.jpg";
+import styles from "./app.scss";
 
 const { Header, Content } = Layout;
 

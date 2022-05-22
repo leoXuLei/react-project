@@ -38,9 +38,14 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /(\.js)|(\.jsx)$/, // 匹配.js|x结尾的文件
+        test: /\.jsx?$/, // 匹配.js|x结尾的文件
         exclude: /node_modules/, // 排除依赖包文件夹
         loader: "babel-loader", // 使用babel-loader，配置在.babelrc
+      },
+      {
+        test: /\.tsx?$/, // 匹配.ts|x结尾的文件
+        exclude: /node_modules/,
+        loader: "ts-loader",
       },
       {
         test: /\.(jpg|png|gif|jpeg|svg)$/, // 匹配图片文件
@@ -106,10 +111,15 @@ module.exports = {
       ],
     }),
   ],
+  // 模块解析规则
   resolve: {
-    extensions: [".tsx", ".ts", ".js", ".jsx", ".mdx"],
+    // 配置extensions，这样以后引入文件就不需要带扩展名
+    extensions: [".tsx", ".ts", ".js", ".jsx", ".json"],
+    // 路径别名设置
     alias: {
       "@": path.resolve(__dirname, "src"), // 设置@为src目录的别名
     },
+    // 使用绝对路径指明第三方模块存放的位置，以减少搜索步骤
+    // modules: [path.resolve(__dirname, "node_modules")],
   },
 };
