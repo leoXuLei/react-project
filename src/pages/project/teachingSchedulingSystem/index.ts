@@ -1,3 +1,4 @@
+/* eslint-disable no-labels */
 import {
   IStudentItem,
   ITeacherItem,
@@ -66,6 +67,7 @@ export default class TeachingSchedulingService {
         );
         // 把当前学生报名的当前课程信息push到courseSignUpInfoMap的对应课程的报名数组中
         curSubSignUpInfoList.push({
+          stuOrder: stuItem.stuOrder,
           stuName: stuItem.stuName,
           ...courseInfoItem,
         });
@@ -112,14 +114,15 @@ export default class TeachingSchedulingService {
       }
 
       // for循环遍历老师
-      for (const curTeacherInfoItem of this.teacherInfoList) {
+      outerFirst: for (let i = 0; i < this.teacherInfoList.length; i++) {
+        const curTeacherInfoItem = this.teacherInfoList[i];
         const { ownerCourses } = curTeacherInfoItem;
 
-        // 该老师排课标记key
+        // 第几节课该老师 是否已经安排的标记key
         const courseTeacherKey = `${curCourseScheduleOrder}&${curTeacherInfoItem.tchName}`;
 
         // 如果第curCourseScheduleOrder节课该老师已经排课了，则 continue 跳过
-        if (used[courseTeacherKey]) continue;
+        if (used[courseTeacherKey]) continue outerFirst;
 
         // for循环遍历该老师授课的数据
         for (const curTeacherCurCourseItem of ownerCourses) {
@@ -136,7 +139,9 @@ export default class TeachingSchedulingService {
             /** 排课唯一标识：（暂时改成 `第几节课&授课老师&课程名称&学生`）`日期&上课时间段&授课老师&课程名称&学生` */
             const courseSchedulingKey = `${courseTeacherKey}&${SUBJECT_TYPE_ZHCH_MAP.get(
               curTeacherCurCourseItem
-            )}&${courseRegistrationItem.stuName}`;
+            )}&${courseRegistrationItem.stuName}&${
+              courseRegistrationItem.stuOrder
+            }`;
 
             // 若排课唯一标识被用过 或者 该学生的该课程已经被排了，则 continue 跳过
             const isUsed =
@@ -184,7 +189,7 @@ export default class TeachingSchedulingService {
             path.pop();
 
             // 撤销标记：该老师在第curCourseScheduleOrder节课还没有排课
-            used[courseTeacherKey] = true;
+            used[courseTeacherKey] = false;
 
             // 撤销标记：该学生该报名课程还没有排课
             courseRegistrationItem.arranged = false;
