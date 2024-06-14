@@ -1,4 +1,5 @@
 /* eslint-disable no-labels */
+import { produce } from "immer";
 import {
   IStudentItem,
   ITeacherItem,
@@ -94,13 +95,18 @@ export default class TeachingSchedulingService {
     let curCourseScheduleOrder = 0;
 
     // 当前步属于第几阶段决策
-    let decisionPhaseindex = 0;
+    const decisionPhaseindex = 0;
     // 排课信息数组
-    const courseSchedulingRes = [];
+    const courseSchedulingRes: ICourseSchedulingItem[][] = [];
     // 排课记录
     const used = {};
+    // 方案是否重复记录（某些方案同一节课时只是顺序不同实则方案重复）
+    const cepeatedSchedulingMap = {};
 
-    const dfs = (path, latestDecisionPhaseindex) => {
+    const dfs = (
+      path: ICourseSchedulingItem[],
+      latestDecisionPhaseindex: number
+    ) => {
       // # --------------------------递归出口--------------------------
       // if (path.length === this.courseTotalTimes) {
       //   courseSchedulingRes.push(path.slice()); // 拷贝一份path，加入解集res
@@ -109,7 +115,25 @@ export default class TeachingSchedulingService {
 
       // 最后一个老师选完一门课程及报名该课程的学生后，结束递归
       if (latestDecisionPhaseindex === this.teacherInfoList.length) {
-        courseSchedulingRes.push(path.slice()); // 拷贝一份path，加入解集res
+        // 使用 immer 进行深拷贝
+        const deepCopiedPath = produce(path.slice(), (draft) => {
+          // 当前方案按照courseSchedulingKey属性排序
+          return draft.sort((a, b) =>
+            a?.courseSchedulingKey?.localeCompare(b?.courseSchedulingKey, "zh")
+          );
+        });
+
+        // 当前方案所有排课的key组成方案标记
+        const curSchedulingUniqueMarkers = deepCopiedPath.reduce(
+          (total, item) => (total += `${item.courseSchedulingKey}_`),
+          ""
+        );
+        // 排序后跟记录中的比对，若有元素都重复的，不进入方案数组中。否则进入。
+        if (cepeatedSchedulingMap[curSchedulingUniqueMarkers]) {
+          return;
+        }
+        cepeatedSchedulingMap[curSchedulingUniqueMarkers] = true;
+        courseSchedulingRes.push(deepCopiedPath); // 拷贝一份path，加入解集res
         return; // 结束当前递归分支
       }
 
@@ -136,16 +160,22 @@ export default class TeachingSchedulingService {
           for (const courseRegistrationItem of curTeacherCurCourseRegistrationList) {
             // # --------------------------做选择--------------------------start
 
-            /** 排课唯一标识：（暂时改成 `第几节课&授课老师&课程名称&学生`）`日期&上课时间段&授课老师&课程名称&学生` */
-            const courseSchedulingKey = `${courseTeacherKey}&${SUBJECT_TYPE_ZHCH_MAP.get(
-              curTeacherCurCourseItem
-            )}&${courseRegistrationItem.stuName}&${
-              courseRegistrationItem.stuOrder
-            }`;
+            // 第几节课该学生 是否已经安排的标记key
+            const courseStudentKey = `${curCourseScheduleOrder}&${courseRegistrationItem.stuName}`;
 
-            // 若排课唯一标识被用过 或者 该学生的该课程已经被排了，则 continue 跳过
+            // 课程中文名
+            const courseZhName = SUBJECT_TYPE_ZHCH_MAP.get(
+              curTeacherCurCourseItem
+            );
+
+            /** 排课唯一标识：（暂时改成 `第几节课&授课老师&课程名称&学生`）`日期&上课时间段&授课老师&课程名称&学生` */
+            const courseSchedulingKey = `${courseTeacherKey}&${courseZhName}&${courseRegistrationItem.stuName}&${courseRegistrationItem.stuOrder}`;
+
+            // 若排课唯一标识被用过 或者 第几节课该学生已经有排课了 或者 该学生的该课程已经被排了，则 continue 跳过
             const isUsed =
-              used[courseSchedulingKey] || courseRegistrationItem.arranged;
+              used[courseSchedulingKey] ||
+              used[courseStudentKey] ||
+              courseRegistrationItem.arranged;
             if (isUsed) continue;
 
             // 选择当前的数，加入path
@@ -159,13 +189,16 @@ export default class TeachingSchedulingService {
               /** 上课老师 */
               courseTeacher: curTeacherInfoItem.tchName,
               /** 课程 */
-              course: courseRegistrationItem,
+              course: courseZhName,
               /** 上课学生 */
               courseStudent: courseRegistrationItem.stuName,
             });
 
-            // 标记：第curCourseScheduleOrder节课当前老师已经排课了
+            // 标记：第curCourseScheduleOrder节课该老师已经排课了
             used[courseTeacherKey] = true;
+
+            // 标记：第curCourseScheduleOrder节课该学生已经排课了
+            used[courseStudentKey] = true;
 
             // 标记：该学生该报名课程已经排课了
             courseRegistrationItem.arranged = true;
@@ -190,6 +223,9 @@ export default class TeachingSchedulingService {
 
             // 撤销标记：该老师在第curCourseScheduleOrder节课还没有排课
             used[courseTeacherKey] = false;
+
+            // 撤销标记：第curCourseScheduleOrder节课该学生已经排课了
+            used[courseStudentKey] = false;
 
             // 撤销标记：该学生该报名课程还没有排课
             courseRegistrationItem.arranged = false;

@@ -81,6 +81,10 @@ export interface IStuScheduleCourseReqItem {
 // -----------------------------------【排课信息】-------------
 
 export interface ICourseSchedulingItem {
+  /** 排课总节数中顺序 */
+  courseNumOrder: number;
+  /** 第几节课 */
+  courseIndex: number;
   /** 排课唯一标识：`日期&上课时间段&授课老师&课程名称&学生（暂时改成 `第几节课&授课老师&课程名称&学生`）` */
   courseSchedulingKey: string;
   /** 上课日期：如2024_0404（暂时改成可选，后续再改回来） */
@@ -90,7 +94,9 @@ export interface ICourseSchedulingItem {
   /** 上课老师 */
   courseTeacher: string;
   /** 课程 */
-  course: ESubjectType;
+  course: string;
+  // course: ESubjectType;
+  // course: IStuSignUpCourseItem;
   /** 上课学生 */
   courseStudent: string;
 }
