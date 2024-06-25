@@ -27,7 +27,7 @@ export default class TeachingSchedulingService {
   private courseSignUpInfoMap: Map<ESubjectType, IStuSignUpCourseTotalItem[]> =
     new Map();
 
-  /** 课程总次数 */
+  /** 课程报名总节数 */
   private courseTotalTimes = 0;
 
   /** 输出：排课方案 */
@@ -50,7 +50,6 @@ export default class TeachingSchedulingService {
 
     this.initialCourseSignUpInfo();
     const schedulingData = this.permuteTeachingScheduling();
-    console.log("第一节课schedulingData", schedulingData);
   }
 
   /**
@@ -82,7 +81,7 @@ export default class TeachingSchedulingService {
     this.courseTotalTimes = curCourseTotalTimes;
 
     console.log("课程报名信息（Map）::>", this.courseSignUpInfoMap);
-    console.log("课程总次数 ::>", this.courseTotalTimes);
+    console.log("课程报名总节数 ::>", this.courseTotalTimes);
   }
 
   /**
@@ -92,7 +91,7 @@ export default class TeachingSchedulingService {
     /** 排课总节数中顺序 */
     let courseNumOrder = 0;
     // 第几节课
-    let courseIndex = 0;
+    const courseIndex = 0;
 
     // 当前步属于第几阶段决策
     const decisionPhaseindex = 0;
@@ -103,15 +102,25 @@ export default class TeachingSchedulingService {
     const repeatedSchedulingInfoObj = {};
 
     // 输出：排课方案
-    const courseSchedulingRes: ICourseSchedulingItem[][] = [];
+    // const courseSchedulingRes: ICourseSchedulingItem[][] = [];
+    const courseSchedulingRes: any[] = [];
+
+    // 临时：排前两节课
+    const targetTotalCourseNumber = 3;
+
+    // 递归开始时间点
+    console.time("myFunction");
+    const startTime = new Date().getTime();
 
     /**
      * 排课递归
      * @param path 当前排课方案
+     * @param curCourseIndex 当前是第几节课，即当前是第几步
      * @param curDecisionPhaseindex 当前步属于第几阶段决策
      */
     const dfs = (
       path: ICourseSchedulingItem[],
+      curCourseIndex: number,
       curDecisionPhaseindex: number
     ) => {
       // # ------------------------------------------（一）递归出口------------------------------------------
@@ -120,27 +129,40 @@ export default class TeachingSchedulingService {
       //   return; // 结束当前递归分支
       // }
 
-      // 最后一个老师选完一门课程及报名该课程的一个学生后，结束递归
+      // 排第curCourseIndex节课时，若最后一个老师选完一门课程及报名该课程的一个学生后，结束递归
       if (curDecisionPhaseindex === this.teacherInfoList.length) {
-        // 使用 immer 进行深拷贝，拷贝一份当前排课方案，加入解集res
+        // 使用 immer 进行深拷贝（并重新映射每个元素的属性），拷贝一份当前排课方案，加入解集res
         const deepCopiedPath = produce(path.slice(), (draft) => {
           // 当前排课方案按照courseSchedulingKey属性排序
           return draft.sort((a, b) =>
             a?.courseSchedulingKey?.localeCompare(b?.courseSchedulingKey, "zh")
           );
-        });
+        }).map((item) => ({ ...item }));
 
         // 当前排课方案所有排课的惟一标识组成当前方案标记
         const curSchedulingUniqueMarkers = deepCopiedPath.reduce(
           (total, item) => (total += `${item.courseSchedulingKey}_`),
           ""
         );
-        // 若方案标记重复，不进入解集数组中。否则进入。
+        // 若第curCourseIndex节课的方案标记重复，不进入解集数组中。否则进入。
         if (repeatedSchedulingInfoObj[curSchedulingUniqueMarkers]) {
           return;
         }
+
+        // 当前（最新）方案标记记录一下，这行代码放在这里跟放在`courseSchedulingRes.push(deepCopiedPath);`上一行相比较：执行快很多，同时repeatedSchedulingInfoObj对象存储的属性也更多。
         repeatedSchedulingInfoObj[curSchedulingUniqueMarkers] = true;
+
+        // 此时第curCourseIndex节课排完了，若没有达到要求的课数（排到第几节课），则继续排，否则输出方案
+        if (curCourseIndex < targetTotalCourseNumber) {
+          // 基于选了的当前方案item，递归（纵向遍历），从下一节课第一阶段开始排
+          return dfs(deepCopiedPath, curCourseIndex + 1, 0);
+        }
+
         courseSchedulingRes.push(deepCopiedPath);
+        // courseSchedulingRes.push({
+        //   curCourseIndex,
+        //   arrange: deepCopiedPath,
+        // });
         return; // 结束当前递归分支
       }
 
@@ -150,7 +172,7 @@ export default class TeachingSchedulingService {
         const { ownerCourses } = curTeacherInfoItem;
 
         // 标记1-key：第几节课该老师 是否已经安排的标记key
-        const courseIndexTchArrangedKey = `${courseIndex}&${curTeacherInfoItem.tchName}`;
+        const courseIndexTchArrangedKey = `${curCourseIndex}&${curTeacherInfoItem.tchName}`;
 
         // 如果第courseIndex节课该老师已经排课了，则 continue 跳过
         if (usedSchedulingInfoObj[courseIndexTchArrangedKey]) {
@@ -167,9 +189,22 @@ export default class TeachingSchedulingService {
           // for循环遍历（该老师的）该课程被学生报名的数据
           for (const courseRegistrationItem of curCourseSignUpInfos) {
             // # ------------------------------------------（二）做选择------------------------------------------start
+            // 若该学生的该课程已经被排了，则 continue 跳过
+            if (courseRegistrationItem.arranged) continue;
+
+            // 若该学生上节课已经排课了，则这节课不安排该学生的课，continue 跳过（【学生上课要求一：课程不可以连着】）
+            const lastCourseIndexStuArrangedKey = `${curCourseIndex - 1}&${
+              courseRegistrationItem.stuName
+            }`;
+            if (
+              curCourseIndex > 0 &&
+              usedSchedulingInfoObj[lastCourseIndexStuArrangedKey]
+            ) {
+              continue;
+            }
 
             // 标记2-key：第几节课该学生 是否已经安排的标记key
-            const courseIndexStuArrangedKey = `${courseIndex}&${courseRegistrationItem.stuName}`;
+            const courseIndexStuArrangedKey = `${curCourseIndex}&${courseRegistrationItem.stuName}`;
 
             // 该课程中文名
             const courseZhName = SUBJECT_TYPE_ZHCH_MAP.get(
@@ -180,11 +215,10 @@ export default class TeachingSchedulingService {
             /** 排课唯一标识：（暂时改成 `第几节课&授课老师&课程名称&学生`）`日期&上课时间段&授课老师&课程名称&学生` */
             const courseSchedulingKey = `${courseIndexTchArrangedKey}&${courseZhName}&${courseRegistrationItem.stuName}&${courseRegistrationItem.stuOrder}`;
 
-            // 若排课唯一标识被用过 或者 第几节课该学生已经有排课了 或者 该学生的该课程已经被排了，则 continue 跳过
+            // 若排课唯一标识被用过 或者 第几节课该学生已经有排课了，则 continue 跳过
             const isSchedulingKeyUsed =
-              usedSchedulingInfoObj[courseSchedulingKey] ||
               usedSchedulingInfoObj[courseIndexStuArrangedKey] ||
-              courseRegistrationItem.arranged;
+              usedSchedulingInfoObj[courseSchedulingKey];
 
             if (isSchedulingKeyUsed) continue;
 
@@ -193,7 +227,7 @@ export default class TeachingSchedulingService {
               /** 排课总节数中顺序 */
               courseNumOrder: 0,
               /** 第几节课 */
-              courseIndex,
+              courseIndex: curCourseIndex,
               /** 排课唯一标识 */
               courseSchedulingKey,
               /** 上课老师 */
@@ -217,14 +251,13 @@ export default class TeachingSchedulingService {
             courseRegistrationItem.arranged = true;
 
             courseNumOrder += 1;
-            // courseIndex += 1;
 
             // # ------------------------------------------（二）做选择------------------------------------------end
 
             // # ------------------------------------------（三）递归进行下一次选择（进入下一层决策树）（递归，纵向遍历）------------------------------------------
 
             // 基于选了的当前方案item，递归（纵向遍历）
-            dfs(path, curDecisionPhaseindex + 1);
+            dfs(path, curCourseIndex, curDecisionPhaseindex + 1);
 
             // # ------------------------------------------（四）撤销选择------------------------------------------start
 
@@ -252,10 +285,17 @@ export default class TeachingSchedulingService {
     };
 
     // 递归的入口，空path传进去
-    dfs([], decisionPhaseindex);
+    dfs([], courseIndex, decisionPhaseindex);
 
+    // 递归结束时间点
+    const endTime = new Date().getTime();
+    const dfsTime = (endTime - startTime) / 1000; // 转换为秒
+    console.timeEnd("myFunction"); // 将输出 "myFunction: X.XXXms"
+    console.log(`递归函数从开始到结束，执行花费时间为 ${dfsTime} s`);
     console.log("repeatedSchedulingInfoObj", repeatedSchedulingInfoObj);
-    console.log("usedSchedulingInfoObj", usedSchedulingInfoObj);
+
+    console.log(`前${targetTotalCourseNumber + 1}节课schedulingData`, courseSchedulingRes);
+
     return courseSchedulingRes;
   };
 }
